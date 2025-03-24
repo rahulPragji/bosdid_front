@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BeneficiaryModal from '../components/BeneficiaryModal';
+import logo from '../assets/png/logo-color.png';
 
 interface Beneficiary {
   id: string;
@@ -12,6 +13,7 @@ interface Beneficiary {
   yearOfCompletion: number;
   identityNumber: string;
   taxNumber: string;
+  imageUrl: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -37,6 +39,18 @@ const Beneficiaries: React.FC = () => {
       yearOfCompletion: 2022,
       identityNumber: '123456789',
       taxNumber: 'TAX123456',
+      imageUrl: 'https://via.placeholder.com/150',
+    },
+    {
+      id: '2',
+      name: 'Jane',
+      surname: 'Smith',
+      university: 'Botswana International University of Science & Technology',
+      accumulatedTotal: 75000,
+      yearOfCompletion: 2023,
+      identityNumber: '987654321',
+      taxNumber: 'TAX654321',
+      imageUrl: 'https://via.placeholder.com/150',
     },
     // Add more dummy data as needed
   ];
@@ -108,26 +122,47 @@ const Beneficiaries: React.FC = () => {
 
   return (
     <div className="container">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>DTEF Beneficiaries</h1>
-        <button onClick={handleLogout}>Logout</button>
+      <header>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          padding: 'var(--spacing-md) 0'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+            <img 
+              src={logo} 
+              alt="DTEF Logo" 
+              style={{ 
+                width: '40px', 
+                height: 'auto'
+              }} 
+            />
+            <h1 style={{ margin: 0 }}>DTEF Beneficiaries</h1>
+          </div>
+          <button 
+            onClick={handleLogout}
+            style={{
+              padding: 'var(--spacing-sm) var(--spacing-md)',
+              fontSize: '0.9rem'
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <div className="card mb-4">
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+        <div className="tab-nav">
           <button
+            className={`tab-button ${activeTab === 'granted' ? 'active' : ''}`}
             onClick={() => setActiveTab('granted')}
-            style={{
-              background: activeTab === 'granted' ? 'var(--color-dark-grey)' : 'var(--color-grey)',
-            }}
           >
             Granted Accounts
           </button>
           <button
+            className={`tab-button ${activeTab === 'eligible' ? 'active' : ''}`}
             onClick={() => setActiveTab('eligible')}
-            style={{
-              background: activeTab === 'eligible' ? 'var(--color-dark-grey)' : 'var(--color-grey)',
-            }}
           >
             Eligible to Pay
           </button>
@@ -138,20 +173,71 @@ const Beneficiaries: React.FC = () => {
           placeholder="Search beneficiaries..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-100 mb-3"
+          className="search-input"
         />
 
         {isLoading ? (
           <div className="text-center">Loading...</div>
         ) : (
           <>
-            <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            <div style={{ 
+              display: 'grid', 
+              gap: 'var(--spacing-md)', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' 
+            }}>
               {paginatedBeneficiaries.map(beneficiary => (
                 <div key={beneficiary.id} className="card">
-                  <h3>{beneficiary.name} {beneficiary.surname}</h3>
-                  <p>University: {beneficiary.university}</p>
-                  <p>Total: BWP {beneficiary.accumulatedTotal.toLocaleString()}</p>
-                  <button onClick={() => setSelectedBeneficiary(beneficiary)}>
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: 'var(--spacing-md)',
+                    marginBottom: 'var(--spacing-md)'
+                  }}>
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      flexShrink: 0
+                    }}>
+                      <img 
+                        src={beneficiary.imageUrl} 
+                        alt={`${beneficiary.name} ${beneficiary.surname}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ 
+                        color: 'var(--color-brown)',
+                        marginBottom: 'var(--spacing-xs)'
+                      }}>
+                        {beneficiary.name} {beneficiary.surname}
+                      </h3>
+                      <p style={{ 
+                        color: 'var(--color-black)',
+                        fontSize: '0.9rem'
+                      }}>
+                        {beneficiary.university}
+                      </p>
+                    </div>
+                  </div>
+                  <p style={{ 
+                    color: 'var(--color-orange)',
+                    fontWeight: '600',
+                    fontSize: '1.1rem',
+                    marginBottom: 'var(--spacing-md)'
+                  }}>
+                    Total: BWP {beneficiary.accumulatedTotal.toLocaleString()}
+                  </p>
+                  <button 
+                    onClick={() => setSelectedBeneficiary(beneficiary)}
+                    style={{
+                      width: '100%'
+                    }}
+                  >
                     More Details
                   </button>
                 </div>
@@ -159,14 +245,16 @@ const Beneficiaries: React.FC = () => {
             </div>
 
             {totalPages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2rem' }}>
+              <div className="pagination">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                 >
                   Previous
                 </button>
-                <span>Page {currentPage} of {totalPages}</span>
+                <span style={{ color: 'var(--color-brown)' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
