@@ -23,13 +23,6 @@ A modern web application for managing DTEF (Department of Tertiary Education Fin
   - Eligibility status
   - Interactive modal for detailed view
 
-- **Modern UI/UX**
-  - Responsive design
-  - Clean and intuitive interface
-  - Consistent color scheme
-  - Loading states and error handling
-  - Smooth transitions and animations
-
 ## Tech Stack
 
 - React with TypeScript
@@ -91,11 +84,5 @@ src/
 2. Make your changes
 3. Submit a pull request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Acknowledgments
-
-- DTEF for providing the opportunity to work on this project
 - All contributors who have helped shape this application
