@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/png/logo-color.png';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -28,17 +29,38 @@ const Login: React.FC = () => {
   return (
     <div className="container">
       <div className="card" style={{ maxWidth: '400px', margin: '100px auto' }}>
-        <h1 className="text-center mb-4">DTEF Login</h1>
+        <div className="text-center mb-4">
+          <img 
+            src={logo} 
+            alt="DTEF Logo" 
+            style={{ 
+              width: '200px', 
+              height: 'auto',
+              marginBottom: '2rem'
+            }} 
+          />
+          <h1>DTEF Login</h1>
+        </div>
         
         {error && (
-          <div className="mb-3" style={{ color: 'red' }}>
+          <div className="mb-3" style={{ 
+            color: 'var(--color-brown)',
+            backgroundColor: 'rgba(133, 72, 54, 0.1)',
+            padding: 'var(--spacing-sm)',
+            borderRadius: '4px',
+            textAlign: 'center'
+          }}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="username" className="mb-2">
+            <label htmlFor="username" className="mb-2" style={{ 
+              display: 'block',
+              color: 'var(--color-brown)',
+              fontWeight: '500'
+            }}>
               Username
             </label>
             <input
@@ -48,11 +70,16 @@ const Login: React.FC = () => {
               onChange={(e) => setUsername(e.target.value)}
               required
               className="w-100"
+              placeholder="Enter your username"
             />
           </div>
 
           <div className="mb-3">
-            <label htmlFor="password" className="mb-2">
+            <label htmlFor="password" className="mb-2" style={{ 
+              display: 'block',
+              color: 'var(--color-brown)',
+              fontWeight: '500'
+            }}>
               Password
             </label>
             <input
@@ -62,6 +89,7 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-100"
+              placeholder="Enter your password"
             />
           </div>
 
@@ -69,6 +97,10 @@ const Login: React.FC = () => {
             type="submit"
             className="w-100"
             disabled={isLoading}
+            style={{
+              padding: 'var(--spacing-md)',
+              fontSize: '1.1rem'
+            }}
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
