@@ -12,8 +12,15 @@ interface Beneficiary {
   accumulatedTotal: number;
   yearOfCompletion: number;
   identityNumber: string;
-  taxNumber: string;
+  taxNumber: string | null;
   imageUrl: string;
+  email: string;
+  address: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -30,6 +37,7 @@ const Beneficiaries: React.FC = () => {
 
   // Dummy data for demonstration
   const dummyData: Beneficiary[] = [
+    // Eligible to Pay beneficiaries (with tax numbers)
     {
       id: '1',
       name: 'John',
@@ -40,6 +48,13 @@ const Beneficiaries: React.FC = () => {
       identityNumber: '123456789',
       taxNumber: 'TAX123456',
       imageUrl: 'https://via.placeholder.com/150',
+      email: 'john.doe@example.com',
+      address: {
+        street: '123 Main Street',
+        city: 'Gaborone',
+        postalCode: '12345',
+        country: 'Botswana'
+      }
     },
     {
       id: '2',
@@ -51,8 +66,69 @@ const Beneficiaries: React.FC = () => {
       identityNumber: '987654321',
       taxNumber: 'TAX654321',
       imageUrl: 'https://via.placeholder.com/150',
+      email: 'jane.smith@example.com',
+      address: {
+        street: '456 University Road',
+        city: 'Palapye',
+        postalCode: '67890',
+        country: 'Botswana'
+      }
     },
-    // Add more dummy data as needed
+    // Granted beneficiaries (without tax numbers)
+    {
+      id: '3',
+      name: 'Thabo',
+      surname: 'Mokgweetsi',
+      university: 'University of Botswana',
+      accumulatedTotal: 45000,
+      yearOfCompletion: 2023,
+      identityNumber: '456789123',
+      taxNumber: null,
+      imageUrl: 'https://via.placeholder.com/150',
+      email: 'thabo.mokgweetsi@example.com',
+      address: {
+        street: '789 Kgale Road',
+        city: 'Gaborone',
+        postalCode: '23456',
+        country: 'Botswana'
+      }
+    },
+    {
+      id: '4',
+      name: 'Lerato',
+      surname: 'Moloko',
+      university: 'Botswana International University of Science & Technology',
+      accumulatedTotal: 60000,
+      yearOfCompletion: 2023,
+      identityNumber: '789123456',
+      taxNumber: null,
+      imageUrl: 'https://via.placeholder.com/150',
+      email: 'lerato.moloko@example.com',
+      address: {
+        street: '321 Station Road',
+        city: 'Palapye',
+        postalCode: '34567',
+        country: 'Botswana'
+      }
+    },
+    {
+      id: '5',
+      name: 'Kagiso',
+      surname: 'Tsholofelo',
+      university: 'University of Botswana',
+      accumulatedTotal: 55000,
+      yearOfCompletion: 2022,
+      identityNumber: '321654987',
+      taxNumber: null,
+      imageUrl: 'https://via.placeholder.com/150',
+      email: 'kagiso.tsholofelo@example.com',
+      address: {
+        street: '567 Riverwalk',
+        city: 'Gaborone',
+        postalCode: '45678',
+        country: 'Botswana'
+      }
+    }
   ];
 
   useEffect(() => {
@@ -86,33 +162,23 @@ const Beneficiaries: React.FC = () => {
     }
   };
 
-  const handleMakeEligible = async (id: string) => {
-    try {
-      // TODO: Replace with actual API call
-      // await axios.post(`/v1/dtef/initiate-repayment/${id}`);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update local state
-      setBeneficiaries(prev =>
-        prev.map(ben =>
-          ben.id === id
-            ? { ...ben, status: 'eligible' }
-            : ben
-        )
-      );
-    } catch (error) {
-      console.error('Failed to make beneficiary eligible:', error);
-      throw error;
-    }
+  const handleContactBeneficiary = (email: string) => {
+    // Open default email client
+    window.location.href = `mailto:${email}`;
   };
 
-  const filteredBeneficiaries = beneficiaries.filter(ben =>
-    `${ben.name} ${ben.surname} ${ben.university}`
+  const filteredBeneficiaries = beneficiaries.filter(ben => {
+    const matchesSearch = `${ben.name} ${ben.surname} ${ben.university}`
       .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+      .includes(searchTerm.toLowerCase());
+    
+    // Filter based on active tab
+    if (activeTab === 'granted') {
+      return matchesSearch && !ben.taxNumber;
+    } else {
+      return matchesSearch && ben.taxNumber;
+    }
+  });
 
   const totalPages = Math.ceil(filteredBeneficiaries.length / ITEMS_PER_PAGE);
   const paginatedBeneficiaries = filteredBeneficiaries.slice(
@@ -232,14 +298,27 @@ const Beneficiaries: React.FC = () => {
                   }}>
                     Total: BWP {beneficiary.accumulatedTotal.toLocaleString()}
                   </p>
-                  <button 
-                    onClick={() => setSelectedBeneficiary(beneficiary)}
-                    style={{
-                      width: '100%'
-                    }}
-                  >
-                    More Details
-                  </button>
+                  <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+                    <button 
+                      onClick={() => setSelectedBeneficiary(beneficiary)}
+                      style={{
+                        flex: 1
+                      }}
+                    >
+                      More Details
+                    </button>
+                    {activeTab === 'eligible' && (
+                      <button
+                        onClick={() => handleContactBeneficiary(beneficiary.email)}
+                        style={{
+                          flex: 1,
+                          backgroundColor: 'var(--color-orange)'
+                        }}
+                      >
+                        Contact
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -271,7 +350,7 @@ const Beneficiaries: React.FC = () => {
         <BeneficiaryModal
           beneficiary={selectedBeneficiary}
           onClose={() => setSelectedBeneficiary(null)}
-          onMakeEligible={handleMakeEligible}
+          onContact={() => handleContactBeneficiary(selectedBeneficiary.email)}
         />
       )}
     </div>

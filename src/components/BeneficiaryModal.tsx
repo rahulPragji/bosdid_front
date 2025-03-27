@@ -8,35 +8,28 @@ interface Beneficiary {
   university: string;
   accumulatedTotal: number;
   yearOfCompletion: number;
-  taxNumber: string;
+  taxNumber: string | null;
   imageUrl: string;
+  email: string;
+  address: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
 }
 
 interface BeneficiaryModalProps {
   beneficiary: Beneficiary;
   onClose: () => void;
-  onMakeEligible: (id: string) => Promise<void>;
+  onContact: () => void;
 }
 
 const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
   beneficiary,
   onClose,
-  onMakeEligible,
+  onContact,
 }) => {
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  const handleMakeEligible = async () => {
-    setIsLoading(true);
-    try {
-      await onMakeEligible(beneficiary.id);
-      onClose();
-    } catch (error) {
-      console.error('Failed to make beneficiary eligible:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -126,12 +119,26 @@ const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
         </div>
         <div className="mb-3">
           <strong style={{ color: 'var(--color-brown)' }}>Tax Number:</strong>{' '}
-          <span style={{ color: 'var(--color-black)' }}>{beneficiary.taxNumber}</span>
+          <span style={{ color: 'var(--color-black)' }}>
+            {beneficiary.taxNumber || 'Not yet assigned'}
+          </span>
+        </div>
+        <div className="mb-3">
+          <strong style={{ color: 'var(--color-brown)' }}>Email:</strong>{' '}
+          <span style={{ color: 'var(--color-black)' }}>{beneficiary.email}</span>
+        </div>
+
+        <div className="mb-3">
+          <strong style={{ color: 'var(--color-brown)' }}>Address:</strong>{' '}
+          <div style={{ color: 'var(--color-black)', marginLeft: 'var(--spacing-md)' }}>
+            <div>{beneficiary.address.street}</div>
+            <div>{beneficiary.address.city}, {beneficiary.address.postalCode}</div>
+            <div>{beneficiary.address.country}</div>
+          </div>
         </div>
 
         <button
-          onClick={handleMakeEligible}
-          disabled={isLoading}
+          onClick={onContact}
           className="w-100"
           style={{
             marginTop: 'var(--spacing-lg)',
@@ -140,7 +147,7 @@ const BeneficiaryModal: React.FC<BeneficiaryModalProps> = ({
             backgroundColor: 'var(--color-orange)'
           }}
         >
-          {isLoading ? 'Processing...' : 'Make Eligible to Pay'}
+          Contact Beneficiary
         </button>
       </div>
     </div>
